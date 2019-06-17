@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:instar_clone_by_flutter/create_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'detail_post_page.dart';
 
 class SearchPage extends StatefulWidget {
 final FirebaseUser user;
+
   SearchPage(this.user);
+
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -27,20 +32,43 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildBody() {
-    return GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1.0,
-            mainAxisSpacing: 1.0,
-            crossAxisSpacing: 1.0),
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return _buildListItem(context, index);
-        });
+    return StreamBuilder(
+      stream: Firestore.instance.collection('post').snapshots(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if(!snapshot.hasData){
+          return Center(child: CircularProgressIndicator());
+        }
+        var items = snapshot.data?.documents?? [];
+
+        return GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1.0,
+                mainAxisSpacing: 1.0,
+                crossAxisSpacing: 1.0),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return _buildListItem(context, items[index]);
+            });
+
+    },
+    );
   }
 
-  Widget _buildListItem(BuildContext context, int index) {
-    return Image.network(
-        'http://imyeon.woobi.co.kr/dreammaru/ex1_img.png', fit: BoxFit.cover);
+  Widget _buildListItem( context,  document) {
+    return Hero(
+      tag: document['photoUrl'],
+      child: Material(
+        child: InkWell(
+          onTap: (){
+            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context){
+              return DetailPostPage(document);
+            }));
+          },
+          child: Image.network(
+              document['photoUrl'], fit: BoxFit.cover),
+        ),
+      ),
+    );
   }
 }

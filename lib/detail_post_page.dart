@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 class DetailPostPage extends StatefulWidget {
   final dynamic document;
-
   DetailPostPage(this.document);
-
   @override
   _DetailPostPageState createState() => _DetailPostPageState();
 }
@@ -55,7 +53,7 @@ class _DetailPostPageState extends State<DetailPostPage> {
                 child: Image.network(widget.document['photoUrl'])),
             Padding(
               padding: const EdgeInsets.all(8.0),
-//              child: Text(widget.document['contents']),
+              child: Text(widget.document['content']),
             ),
           ],
         ),
